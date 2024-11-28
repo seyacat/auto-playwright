@@ -39,7 +39,7 @@
     "url": "https://github.com/lucgagan/auto-playwright"
   },
   "devDependencies": {
-    "@playwright/test": "^1.39.0",
+    "@playwright/test": "^1.49.0",
     "@types/node": "^20.2.5",
     "@types/sanitize-html": "^2.9.4",
     "knip": "^2.41.0",
