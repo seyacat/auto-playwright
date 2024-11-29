@@ -13,7 +13,7 @@ export const auto = async (
   config: { page: Page; test?: Test },
   options?: StepOptions,
   additionalParams?: Record<string, string>,
-  cache_prefix?: string
+  cache_filename?: string
 ): Promise<any> => {
   if (!config || !config.page) {
     throw Error(
@@ -29,22 +29,32 @@ export const auto = async (
     if (!existsSync(options.cache_path)) {
       throw new Error(`Cache path ${options.cache_path} does not exist`);
     }
-    const cache_file_path = path.join(
-      options?.cache_path,
-      (cache_prefix?.replace("s", "_") ?? "") + "_" + taskHash + ".json"
+    let cache_file_path = path.join(
+      options.cache_path,
+       taskHash + ".json"
     );
+    if(cache_filename){
+      cache_file_path = path.join(
+        options?.cache_path,
+         cache_filename.replace("\s", "_")+".json"
+      )
+    }
+    
     if (existsSync(cache_file_path)) {
       let cacheString = readFileSync(cache_file_path).toString();
       //replace arguments in cache string file
       for (const [key, value] of Object.entries(additionalParams ?? {})) {
         cacheString = cacheString.replace(`@{${key}}`, value);
       }
-      return await runCachedTask(page, JSON.parse(cacheString));
+      let cache_data = JSON.parse(cacheString);
+      if( cache_data.taskHash === taskHash){
+        return await runCachedTask(page, JSON.parse(cacheString));
+      }      
     }
   }
 
   if (!test) {
-    return await runTask(task, page, options, additionalParams, cache_prefix);
+    return await runTask(task, page, options, additionalParams, cache_filename);
   }
 
   return test.step(`auto-playwright.ai '${task}'`, async () => {
@@ -53,7 +63,7 @@ export const auto = async (
       page,
       options,
       additionalParams,
-      cache_prefix
+      cache_filename
     );
 
     if (result.errorMessage) {
@@ -77,7 +87,7 @@ async function runTask(
   page: Page,
   options: StepOptions | undefined,
   additionalParams?: Record<string, string>,
-  cache_prefix?: string
+  cache_filename?: string
 ) {
   if (task.length > MAX_TASK_CHARS) {
     throw new Error(
@@ -92,7 +102,7 @@ async function runTask(
       snapshot: await getSnapshot(page),
       options: options
         ? {
-            model: options.model ?? "gpt-4o",
+            model: options.model ?? "gpt-4o-mini",
             debug: options.debug ?? false,
             openaiApiKey: options.openaiApiKey,
             openaiBaseUrl: options.openaiBaseUrl,
@@ -103,7 +113,7 @@ async function runTask(
     },
     options,
     additionalParams,
-    cache_prefix
+    cache_filename
   );
   return result;
 }

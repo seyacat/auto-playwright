@@ -5,6 +5,7 @@ import { createActions } from "./createActions";
 import * as crypto from "crypto";
 import { existsSync, writeFileSync } from "fs";
 import path from "path";
+import { functions } from "lodash";
 
 const defaultDebug = process.env.AUTO_PLAYWRIGHT_DEBUG === "true";
 
@@ -13,7 +14,7 @@ export const completeTask = async (
   task: TaskMessage,
   options?: StepOptions,
   additionalParams?: Record<string, string>,
-  cache_prefix?: string
+  cache_filename?: string
 ): Promise<TaskResult> => {
   const openai = new OpenAI({
     apiKey: task.options?.openaiApiKey,
@@ -108,11 +109,21 @@ export const completeTask = async (
     if (!existsSync(options.cache_path)) {
       throw new Error(`Cache path ${options.cache_path} does not exist`);
     }
-    const cache_file_path = path.join(
-      options?.cache_path,
-      (cache_prefix?.replace("\s" , "_") ?? "") + "_" + taskHash + ".json"
+    let cache_file_path = path.join(
+      options.cache_path,
+      taskHash + ".json"
     );
-    writeFileSync(cache_file_path, JSON.stringify(cache.flat(), null, 2));
+    if(cache_filename){
+      cache_file_path = path.join(
+        options?.cache_path,
+        cache_filename?.replace("\s" , "_") + ".json"
+      )
+    }
+    const cache_data = {
+      taskHash,
+      functions: cache.flat(),
+    }
+    writeFileSync(cache_file_path, JSON.stringify(cache_data, null, 2));
   }
 
   return lastFunctionResult;
