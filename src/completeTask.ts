@@ -2,7 +2,6 @@ import OpenAI from "openai";
 import { type Page, StepOptions, TaskMessage, TaskResult } from "./types";
 import { prompt } from "./prompt";
 import { createActions } from "./createActions";
-import { options } from "sanitize-html";
 import * as crypto from "crypto";
 import { existsSync, writeFileSync } from "fs";
 import path from "path";

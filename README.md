@@ -1,6 +1,7 @@
 # Auto Playwright
 
 Run Playwright tests using AI.
+This Fork includes file cached system
 
 ## Setup
 
