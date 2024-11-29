@@ -1,5 +1,5 @@
 import { Page } from "@playwright/test";
-import { randomUUID } from "crypto";
+import * as crypto from 'crypto';
 import { RunnableFunctionWithParse } from "openai/lib/RunnableFunction";
 import { z } from "zod";
 
@@ -23,7 +23,8 @@ export const createActions = (
       function: async (args: { cssSelector: string }) => {
         const locator = await page.locator(args.cssSelector);
 
-        const elementId = randomUUID();
+        
+        const elementId = crypto.createHash("sha256").update(JSON.stringify(args)).digest("hex");;
 
         locatorMap.set(elementId, locator);
 

@@ -11,6 +11,7 @@ export type StepOptions = {
   openaiBaseUrl?: string;
   openaiDefaultQuery?: {};
   openaiDefaultHeaders?: {};
+  cache_path?: string;
 };
 
 export type TaskMessage = {
@@ -26,3 +27,10 @@ export type TaskResult = {
   query?: string;
   errorMessage?: string;
 };
+
+export type ToolCall = {
+  
+    name: string;
+    arguments: string
+  
+}
