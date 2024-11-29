@@ -30,7 +30,7 @@
     ]
   },
   "types": "./dist/index.d.ts",
-  "name": "auto-playwright",
+  "name": "@seyacat/auto-playwright",
   "main": "./dist/index.js",
   "sideEffects": false,
   "description": "Automate Playwright tests using ChatGPT.",
