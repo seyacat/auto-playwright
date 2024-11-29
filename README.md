@@ -3,6 +3,20 @@
 Run Playwright tests using AI.
 This Fork includes file cached system
 
+## Cache example usagge
+
+```js
+
+  const options: StepOptions = {
+    model: 'gpt-4o-mini',
+    cache_path: "playwright/cache",
+    //debug: true
+ };
+ ...
+ const res = await auto(`Fill login form, username: @{USERNAME}, password: @{PASSWORD}, Click on "Remember Me", and Sign In`, { page },options, {USERNAME , PASSWORD}, "fill_login");
+
+```
+
 ## Setup
 
 1. Install `auto-playwright` dependency:
