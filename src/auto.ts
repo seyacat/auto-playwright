@@ -36,7 +36,7 @@ export const auto = async (
     if(cache_filename){
       cache_file_path = path.join(
         options?.cache_path,
-         cache_filename.replace("\s", "_")+".json"
+         cache_filename.replace(/\s/g, "_")+".json"
       )
     }
     
