@@ -22,34 +22,34 @@ export const auto = async (
   }
 
   const { test, page } = config as { page: Page; test?: Test };
-
-  const taskHash = crypto.createHash("sha256").update(task).digest("hex");
+  const taskHash = crypto
+    .createHash("sha256")
+    .update(task + (cache_filename ?? ""))
+    .digest("hex");
 
   if (options?.cache_path) {
     if (!existsSync(options.cache_path)) {
       throw new Error(`Cache path ${options.cache_path} does not exist`);
     }
-    let cache_file_path = path.join(
-      options.cache_path,
-       taskHash + ".json"
-    );
-    if(cache_filename){
+    let cache_file_path = path.join(options.cache_path, taskHash + ".json");
+    if (cache_filename) {
       cache_file_path = path.join(
         options?.cache_path,
-         cache_filename.replace(/\s/g, "_")+".json"
-      )
+        cache_filename.replace(/\s/g, "_") + ".json"
+      );
     }
-    
+
     if (existsSync(cache_file_path)) {
       let cacheString = readFileSync(cache_file_path).toString();
       //replace arguments in cache string file
       for (const [key, value] of Object.entries(additionalParams ?? {})) {
-        cacheString = cacheString.replace(`@{${key}}`, value);
+        cacheString = cacheString.replaceAll(`@{${key}}`, value);
       }
       let cache_data = JSON.parse(cacheString);
-      if( cache_data.taskHash === taskHash){
+      if (cache_data.taskHash === taskHash) {
+        console.log("Cache hit: "+cache_filename);
         return await runCachedTask(page, JSON.parse(cacheString));
-      }      
+      }
     }
   }
 

@@ -31,12 +31,14 @@ export const completeTask = async (
   const debug = task.options?.debug ?? defaultDebug;
 
   const cache: any[] = [];
-
-  const taskHash = crypto.createHash("sha256").update(task.task).digest("hex");
+  const taskHash = crypto
+    .createHash("sha256")
+    .update(task.task + (cache_filename ?? ""))
+    .digest("hex");
 
   //REPLACE ADDITIONAL PARAMS
   for (const [key, value] of Object.entries(additionalParams ?? {})) {
-    task.task = task.task.replace(`@{${key}}`, value);
+    task.task = task.task.replaceAll(`@{${key}}`, value);
   }
 
   const runner = openai.beta.chat.completions
