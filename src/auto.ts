@@ -46,9 +46,9 @@ export const auto = async (
         cacheString = cacheString.replaceAll(`@{${key}}`, value);
       }
       let cache_data = JSON.parse(cacheString);
-      if (cache_data.taskHash === taskHash) {
+      if (cache_data?.[taskHash]) {
         console.log("Cache hit: "+cache_filename);
-        return await runCachedTask(page, JSON.parse(cacheString));
+        return await runCachedTask(page, cache_data[taskHash]);
       }
     }
   }

@@ -3,7 +3,7 @@ import { type Page, StepOptions, TaskMessage, TaskResult } from "./types";
 import { prompt } from "./prompt";
 import { createActions } from "./createActions";
 import * as crypto from "crypto";
-import { existsSync, writeFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
 import { functions } from "lodash";
 
@@ -125,7 +125,15 @@ export const completeTask = async (
       taskHash,
       functions: cache.flat(),
     }
-    writeFileSync(cache_file_path, JSON.stringify(cache_data, null, 2));
+    //get previous cache data
+    let data;
+    if (existsSync(cache_file_path)) {
+      data = JSON.parse(readFileSync(cache_file_path, "utf8"));
+    }else{
+      data  = {}
+    }
+    data[taskHash] = cache_data;
+    writeFileSync(cache_file_path, JSON.stringify(data, null, 2));
   }
 
   return lastFunctionResult;
