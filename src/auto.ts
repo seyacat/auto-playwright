@@ -1,12 +1,12 @@
 import { MAX_TASK_CHARS } from "./config";
 import { type Page, type Test, StepOptions } from "./types";
 import { completeTask } from "./completeTask";
-import { UnimplementedError } from "./errors";
 import { getSnapshot } from "./getSnapshot";
 import { runCachedTask } from "./runCachedTask";
 import * as crypto from "crypto";
 import { existsSync, readFileSync } from "fs";
 import path from "path";
+import OpenAI from "openai";
 
 export const auto = async (
   task: string,
@@ -14,14 +14,14 @@ export const auto = async (
   options?: StepOptions,
   additionalParams?: Record<string, string>,
   cache_filename?: string
-): Promise<any> => {
+): Promise<{allProcess: any[], lastResults: any}> => {
   if (!config || !config.page) {
     throw Error(
       "The auto() function is missing the required `{ page }` argument."
     );
   }
 
-  const { test, page } = config as { page: Page; test?: Test };
+  const { page } = config as { page: Page; test?: Test };
   const taskHash = crypto
     .createHash("sha256")
     .update(task + (cache_filename ?? ""))
@@ -47,40 +47,45 @@ export const auto = async (
       }
       let cache_data = JSON.parse(cacheString);
       if (cache_data?.[taskHash]) {
-        console.log("Cache hit: "+cache_filename);
-        return await runCachedTask(page, cache_data[taskHash]);
+        console.log("Cache hit: " + cache_filename);
+        return getAssistantCalls(await runCachedTask(page, cache_data[taskHash]));
       }
     }
   }
-
-  if (!test) {
-    return await runTask(task, page, options, additionalParams, cache_filename);
-  }
-
-  return test.step(`auto-playwright.ai '${task}'`, async () => {
-    const result = await runTask(
-      task,
-      page,
-      options,
-      additionalParams,
-      cache_filename
-    );
-
-    if (result.errorMessage) {
-      throw new UnimplementedError(result.errorMessage);
-    }
-
-    if (result.assertion !== undefined) {
-      return result.assertion;
-    }
-
-    if (result.query !== undefined) {
-      return result.query;
-    }
-
-    return undefined;
-  });
+  
+  return getAssistantCalls(await runTask(task, page, options, additionalParams, cache_filename));
 };
+
+function getAssistantCalls(
+  result: OpenAI.Chat.Completions.ChatCompletionMessageParam[]
+): any {
+  
+  result.forEach((r: OpenAI.Chat.Completions.ChatCompletionMessageParam) => {
+    if (r.role === "tool") {
+      const msg = result.find(
+        (r2) => {
+          return r2.role === "assistant" &&
+            r2.tool_calls?.find((t) => t.id === r.tool_call_id);
+        }
+      );
+      if (msg?.role === "assistant") {
+        const tool_call = msg.tool_calls?.find(
+          (t) => t.id === r.tool_call_id
+        );
+        
+        if (tool_call) {
+          (tool_call as any).result = r.content;
+        }
+      }
+    }
+  });
+  const allProcess:any = result.filter((r: any) => r.role === "assistant").map((r: any) => r.tool_calls).flat();
+  const lastResults:any = {};
+  for(const p of allProcess) {
+    lastResults[p.function.name] = p.result;
+  }
+  return {allProcess, lastResults};
+}
 
 async function runTask(
   task: string,
@@ -88,7 +93,7 @@ async function runTask(
   options: StepOptions | undefined,
   additionalParams?: Record<string, string>,
   cache_filename?: string
-) {
+): Promise<OpenAI.Chat.Completions.ChatCompletionMessageParam[]> {
   if (task.length > MAX_TASK_CHARS) {
     throw new Error(
       `Provided task string is too long, max length is ${MAX_TASK_CHARS} chars.`
