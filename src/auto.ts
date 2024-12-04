@@ -80,9 +80,16 @@ function getAssistantCalls(
     }
   });
   const allProcess:any = result.filter((r: any) => r.role === "assistant").map((r: any) => r.tool_calls).flat();
-  const lastResults:any = {};
+  let lastResults:any = {};
   for(const p of allProcess) {
-    lastResults[p.function.name] = p.result;
+    if(typeof p.result === 'string' ){
+      try{
+        p.result = JSON.parse(p.result);
+      } catch(e) {
+        console.log(e);
+      }
+    }
+    lastResults = {...lastResults, ...p.result};
   }
   return {allProcess, lastResults};
 }
