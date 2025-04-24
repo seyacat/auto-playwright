@@ -213,6 +213,8 @@ console.log(`"There are 3 links" is a ${thereAreThreeLinks} statement`);
 - `locator.isEditable`
 - `locator.isEnabled`
 - `locator.isVisible`
+- `locator.pressKey`
+- `locator.selectOption`
 - `locator.textContent`
 - `locator.uncheck`
 - `page.goto`
