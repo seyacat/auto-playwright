@@ -4,24 +4,24 @@ import { ChatCompletionRunner } from "openai/lib/ChatCompletionRunner";
 
 const runner = {} as ChatCompletionRunner;
 
-// test("finds element using a CSS locator and returns elementId", async ({
-//   page,
-// }) => {
-//   await page.goto("/");
-//
-//   const actions = createActions(page);
-//
-//   const result = await actions.locateElement.function(
-//     {
-//       cssSelector: "h1",
-//     },
-//     runner
-//   );
-//
-//   expect(result).toStrictEqual({
-//     elementId: expect.any(String),
-//   });
-// });
+test("finds element using a CSS locator and returns elementId", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const actions = createActions(page);
+
+  const result = await actions.locateElement.function(
+    {
+      cssSelector: "h1",
+    },
+    runner
+  );
+
+  expect(result).toStrictEqual({
+    elementId: expect.any(String),
+  });
+});
 
 // Тест выбора опции по значению с использованием elementId
 test("selects option by value in a select element using elementId", async ({ page }) => {
