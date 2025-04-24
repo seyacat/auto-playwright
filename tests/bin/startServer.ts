@@ -24,6 +24,42 @@ export const startServer = (port: number) => {
       });
       </script>
     </div>
+    <div id="select-container">
+      <label for="fruit-select">Choose a fruit:</label>
+      <select id="fruit-select" data-testid="fruit-select">
+        <option value="">--Please choose an option--</option>
+        <option value="apple">Apple</option>
+        <option value="banana">Banana</option>
+        <option value="cherry">Cherry</option>
+        <option value="orange">Orange</option>
+      </select>
+      <p>Selected fruit: <span id="selected-fruit" data-testid="selected-fruit">None</span></p>
+      <script>
+      const fruitSelect = document.getElementById("fruit-select");
+      const selectedFruit = document.getElementById("selected-fruit");
+      fruitSelect.addEventListener("change", () => {
+        selectedFruit.innerText = fruitSelect.value ? fruitSelect.options[fruitSelect.selectedIndex].text : "None";
+      });
+      </script>
+    </div>
+    <div id="multi-select-container">
+      <label for="colors-select">Choose colors:</label>
+      <select id="colors-select" data-testid="colors-select" multiple>
+        <option value="red">Red</option>
+        <option value="green">Green</option>
+        <option value="blue">Blue</option>
+        <option value="yellow">Yellow</option>
+      </select>
+      <p>Selected colors: <span id="selected-colors" data-testid="selected-colors">None</span></p>
+      <script>
+      const colorsSelect = document.getElementById("colors-select");
+      const selectedColors = document.getElementById("selected-colors");
+      colorsSelect.addEventListener("change", () => {
+        const selectedOptions = Array.from(colorsSelect.selectedOptions).map(option => option.text);
+        selectedColors.innerText = selectedOptions.length ? selectedOptions.join(", ") : "None";
+      });
+      </script>
+    </div>
   </body>
 </html>`)
   );

@@ -1,4 +1,4 @@
-import * as sanitize from "sanitize-html";
+import sanitize from "sanitize-html";
 
 /**
  * The reason for sanitization is because OpenAI does not need all of the HTML tags
@@ -25,6 +25,7 @@ export const sanitizeHtml = (subject: string) => {
       "input",
       "select",
       "textarea",
+      "option"
     ]),
     // Setting allowedAttributes to false will allow all attributes.
     allowedAttributes: false,

@@ -544,7 +544,7 @@ export const createActions = (
         };
       },
       name: "page_goto",
-      description: "Set a value to the input field.",
+      description: "Navigate to the specified URL.",
       parse: (args: string) => {
         return z
           .object({
@@ -561,6 +561,84 @@ export const createActions = (
           },
           cssLocator: {
             type: "string",
+          },
+        },
+      },
+    },
+    locator_selectOption: {
+      function: async (args: { 
+        elementId?: string; 
+        cssSelector?: string;
+        value?: string | string[]; 
+        label?: string | string[]; 
+        index?: number | number[];
+      }) => {
+        const { elementId, cssSelector, value, label, index } = args;
+        
+        // Get the locator either by using elementId or cssSelector
+        let locator;
+        if (elementId) {
+          locator = getLocator(elementId);
+        } else if (cssSelector) {
+          locator = page.locator(cssSelector);
+        } else {
+          throw new Error("Either elementId or cssSelector must be provided");
+        }
+        
+        // Playwright's selectOption method requires direct passing of values, not an options object
+        if (value !== undefined) {
+          await locator.selectOption(value);
+        } else if (label !== undefined) {
+          await locator.selectOption({ label: label });
+        } else if (index !== undefined) {
+          await locator.selectOption({ index: index });
+        } else {
+          throw new Error("At least one of value, label, or index must be provided");
+        }
+        
+        return { success: true };
+      },
+      name: "locator_selectOption",
+      description: "Select option(s) in a <select> element. You can specify option by value, label (visible text), or index. You can provide either an elementId (from locateElement) or a cssSelector directly.",
+      parse: (args: string) => {
+        return z
+          .object({
+            elementId: z.string().optional(),
+            cssSelector: z.string().optional(),
+            value: z.union([z.string(), z.array(z.string())]).optional(),
+            label: z.union([z.string(), z.array(z.string())]).optional(),
+            index: z.union([z.number(), z.array(z.number())]).optional(),
+          })
+          .refine(data => data.elementId !== undefined || data.cssSelector !== undefined, {
+            message: "Either elementId or cssSelector must be provided",
+          })
+          .refine(data => data.value !== undefined || data.label !== undefined || data.index !== undefined, {
+            message: "At least one of value, label, or index must be provided",
+          })
+          .parse(JSON.parse(args));
+      },
+      parameters: {
+        type: "object",
+        properties: {
+          elementId: { 
+            type: "string",
+            description: "The ID of the <select> element previously located with locateElement."
+          },
+          cssSelector: {
+            type: "string",
+            description: "CSS selector to find the <select> element directly, e.g. '#my-select' or 'form select'."
+          },
+          value: { 
+            type: ["string", "array"],
+            description: "Select options with matching value attribute. Can be a string or array for multiple selection." 
+          },
+          label: { 
+            type: ["string", "array"],
+            description: "Select options with matching visible text. Can be a string or array for multiple selection." 
+          },
+          index: { 
+            type: ["number", "array"],
+            description: "Select options by their index (0-based). Can be a number or array for multiple selection." 
           },
         },
       },
@@ -675,7 +753,7 @@ export const createActions = (
     },
     resultAction: {
       function: () => {
-        return null;
+        return { success: true };
       },
       parse: (args: string) => {
         return z.object({}).parse(JSON.parse(args));
