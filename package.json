@@ -14,8 +14,7 @@
   },
   "license": "MIT",
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "homepage": "https://ray.run",
   "keywords": [
