@@ -95,29 +95,23 @@ test("runs without test parameter", async ({ page }) => {
 test("selects an option from dropdown using auto", async ({ page }) => {
   await page.goto("/");
 
-  // Use auto to select banana from the fruit dropdown
   await auto("Select the 'Banana' option from the fruit dropdown", { page, test }, options);
 
-  // Verify the selection was made correctly
   await expect(page.getByTestId("selected-fruit")).toHaveText("Banana");
 });
 
 test("selects an option from dropdown by value using auto", async ({ page }) => {
   await page.goto("/");
 
-  // Use auto to select an option by its value
   await auto("Select the option with value 'cherry' from the fruit dropdown", { page, test }, options);
 
-  // Verify the selection was made correctly
   await expect(page.getByTestId("selected-fruit")).toHaveText("Cherry");
 });
 
 test("selects multiple options from multi-select using auto", async ({ page }) => {
   await page.goto("/");
 
-  // Use auto to select multiple options from the colors multi-select
   await auto("Select the 'Red' and 'Blue' options from the colors multi-select", { page, test }, options);
 
-  // Verify the selections were made correctly
   await expect(page.getByTestId("selected-colors")).toHaveText("Red, Blue");
 });

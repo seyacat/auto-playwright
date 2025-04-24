@@ -566,16 +566,15 @@ export const createActions = (
       },
     },
     locator_selectOption: {
-      function: async (args: { 
-        elementId?: string; 
+      function: async (args: {
+        elementId?: string;
         cssSelector?: string;
-        value?: string | string[]; 
-        label?: string | string[]; 
+        value?: string | string[];
+        label?: string | string[];
         index?: number | number[];
       }) => {
         const { elementId, cssSelector, value, label, index } = args;
-        
-        // Get the locator either by using elementId or cssSelector
+
         let locator;
         if (elementId) {
           locator = getLocator(elementId);
@@ -584,8 +583,7 @@ export const createActions = (
         } else {
           throw new Error("Either elementId or cssSelector must be provided");
         }
-        
-        // Playwright's selectOption method requires direct passing of values, not an options object
+
         if (value !== undefined) {
           await locator.selectOption(value);
         } else if (label !== undefined) {
@@ -595,7 +593,7 @@ export const createActions = (
         } else {
           throw new Error("At least one of value, label, or index must be provided");
         }
-        
+
         return { success: true };
       },
       name: "locator_selectOption",
@@ -620,7 +618,7 @@ export const createActions = (
       parameters: {
         type: "object",
         properties: {
-          elementId: { 
+          elementId: {
             type: "string",
             description: "The ID of the <select> element previously located with locateElement."
           },
@@ -628,17 +626,17 @@ export const createActions = (
             type: "string",
             description: "CSS selector to find the <select> element directly, e.g. '#my-select' or 'form select'."
           },
-          value: { 
+          value: {
             type: ["string", "array"],
-            description: "Select options with matching value attribute. Can be a string or array for multiple selection." 
+            description: "Select options with matching value attribute. Can be a string or array for multiple selection."
           },
-          label: { 
+          label: {
             type: ["string", "array"],
-            description: "Select options with matching visible text. Can be a string or array for multiple selection." 
+            description: "Select options with matching visible text. Can be a string or array for multiple selection."
           },
-          index: { 
+          index: {
             type: ["number", "array"],
-            description: "Select options by their index (0-based). Can be a number or array for multiple selection." 
+            description: "Select options by their index (0-based). Can be a number or array for multiple selection."
           },
         },
       },
