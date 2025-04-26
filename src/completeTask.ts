@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { type Page, TaskMessage, TaskResult } from "./types";
-import { prompt } from "./prompt";
+import { prompt, SYSTEM_PROMPT } from "./prompt";
 import { createActions } from "./createActions";
 
 const defaultDebug = process.env.AUTO_PLAYWRIGHT_DEBUG === "true";
@@ -26,7 +26,13 @@ export const completeTask = async (
   const runner = openai.beta.chat.completions
     .runTools({
       model: task.options?.model ?? "gpt-4o",
-      messages: [{ role: "user", content: prompt(task) }],
+      messages: [
+        {
+          role: "system",
+          content: SYSTEM_PROMPT
+        },
+        { role: "user", content: prompt(task) }
+      ],
       tools: Object.values(actions).map((action) => ({
         type: "function",
         function: action,
