@@ -60,6 +60,24 @@ export const startServer = (port: number) => {
       });
       </script>
     </div>
+    <div id="dynamic-content" style="display: none;" data-testid="dynamic-content">
+      This is dynamic content.
+    </div>
+
+    <script>
+      setTimeout(() => {
+        const dynamicContent = document.getElementById("dynamic-content");
+        if (dynamicContent) {
+          dynamicContent.style.display = "block";
+        }
+      }, 2000); // появится через 2 секунды
+    </script>
+
+    <div style="height: 3000px;"></div>
+
+    <div id="bottom-of-page" data-testid="bottom-of-page">
+      You have reached the bottom of the page!
+    </div>
   </body>
 </html>`)
   );

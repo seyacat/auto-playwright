@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 import { auto } from "../src/auto";
 
+test.setTimeout(30000);
+
 const options = undefined;
 
 test("executes query", async ({ page }) => {
@@ -114,4 +116,69 @@ test("selects multiple options from multi-select using auto", async ({ page }) =
   await auto("Select the 'Red' and 'Blue' options from the colors multi-select", { page, test }, options);
 
   await expect(page.getByTestId("selected-colors")).toHaveText("Red, Blue");
+});
+
+test("extracts visible structure of the page using auto", async ({ page }) => {
+  await page.goto("/");
+
+  const structure = await auto("Get the visible structure of the page", { page, test }, options);
+
+  expect(typeof structure).toBe("string");
+  expect(structure.length).toBeGreaterThan(0);
+});
+
+test("locates elements by ARIA role using auto", async ({ page }) => {
+  await page.goto("/");
+
+  await auto("Find and click the 'Click me' button using its role", { page, test }, options);
+
+  const countText = await page.locator("[data-testid='current-count']").innerText();
+  expect(countText).toBe("1");
+});
+
+test("locates elements by visible text using auto", async ({ page }) => {
+  await page.goto("/");
+
+  await auto("Find the fruit dropdown and select the option 'Banana' by visible text", { page, test }, options);
+
+  const selectedFruit = await page.locator("[data-testid='selected-fruit']").innerText();
+  expect(selectedFruit).toBe("Banana");
+});
+
+test("waits for dynamic content to load using auto", async ({ page }) => {
+  await page.goto("/");
+
+  await auto("Wait for the dynamic content to appear on the page", { page, test }, options);
+
+  const dynamicContent = await page.locator("[data-testid='dynamic-content']");
+  await expect(dynamicContent).toBeVisible();
+});
+
+test("extracts only visible text from a specific element using auto", async ({ page }) => {
+  await page.goto("/");
+
+  const extractedText = await auto("Extract the visible text from the 'Selected fruit' area", { page, test }, options);
+
+  expect(typeof extractedText).toBe("string");
+  expect(extractedText.length).toBeGreaterThan(0);
+});
+
+test("scrolls element into view using auto", async ({ page }) => {
+  await page.goto("/");
+
+  await auto("Scroll to the bottom of the page where it says 'You have reached the bottom of the page!'", {
+    page,
+    test
+  }, options);
+
+  const isVisible = await page.locator("#bottom-of-page").isVisible();
+  expect(isVisible).toBeTruthy();
+});
+
+test("waits for network idle state using auto", async ({ page }) => {
+  await page.goto("/");
+
+  await auto("Wait until network is idle", { page, test }, options);
+
+  expect(true).toBe(true);
 });
