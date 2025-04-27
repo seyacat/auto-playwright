@@ -1,7 +1,5 @@
 import * as sanitizeHtmlLibrary from "sanitize-html";
 
-const sanitize = (sanitizeHtmlLibrary as any).default;
-
 /**
  * The reason for sanitization is because OpenAI does not need all of the HTML tags
  * to know how to interpret the website, e.g. it will not make a difference to AI if
@@ -14,7 +12,7 @@ const sanitize = (sanitizeHtmlLibrary as any).default;
  * combine HTML with screenshots in the future versions of this library.
  */
 export const sanitizeHtml = (subject: string) => {
-  return sanitize(subject, {
+  return sanitizeHtmlLibrary(subject, {
     // The default allowedTags list already includes _a lot_ of commonly used tags.
     // https://www.npmjs.com/package/sanitize-html#default-options
     //
