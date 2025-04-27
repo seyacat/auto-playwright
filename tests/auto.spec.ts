@@ -1,8 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { auto } from "../src/auto";
 
-test.setTimeout(30000);
-
 const options = undefined;
 
 test("executes query", async ({ page }) => {

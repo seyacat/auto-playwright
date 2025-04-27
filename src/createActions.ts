@@ -6,80 +6,66 @@ import { z } from "zod";
 export const createActions = (
   page: Page
 ): Record<string, RunnableFunctionWithParse<any>> => {
-  const locatorMap = new Map();
-
   const getLocator = (elementId: string) => {
-    const locator = locatorMap.get(elementId);
-
-    if (!locator) {
-      throw new Error('Unknown elementId "' + elementId + '"');
-    }
-
-    return locator;
+    return page.locator(`[data-element-id="${elementId}"]`);
   };
 
   return {
     locator_pressKey: {
       function: async (args: { elementId: string; key: string }) => {
-          const { elementId, key } = args;
-          await getLocator(elementId).press(key);
-          return { success: true };
+        const { elementId, key } = args;
+        await getLocator(elementId).press(key);
+        return { success: true };
       },
       name: "locator_pressKey",
       description: "Presses a key while focused on the specified element.",
       parse: (args: string) => {
-          return z
-              .object({
-                  elementId: z.string(),
-                  key: z.string(),
-              })
-              .parse(JSON.parse(args));
+        return z
+          .object({
+            elementId: z.string(),
+            key: z.string(),
+          })
+          .parse(JSON.parse(args));
       },
       parameters: {
-          type: "object",
-          properties: {
-              elementId: { type: "string" },
-              key: { type: "string", description: "The name of the key to press, e.g., 'Enter', 'ArrowUp', 'a'." },
-          },
+        type: "object",
+        properties: {
+          elementId: { type: "string" },
+          key: { type: "string", description: "The name of the key to press, e.g., 'Enter', 'ArrowUp', 'a'." },
+        },
       },
     },
     page_pressKey: {
       function: async (args: { elementId: string; key: string }) => {
-          const { key } = args;
-          await page.keyboard.press(key);
-          return { success: true };
+        const { key } = args;
+        await page.keyboard.press(key);
+        return { success: true };
       },
       name: "page_pressKey",
       description: "Presses a key globally on the page.",
       parse: (args: string) => {
-          return z
-              .object({
-                  key: z.string(),
-              })
-              .parse(JSON.parse(args));
+        return z
+          .object({
+            key: z.string(),
+          })
+          .parse(JSON.parse(args));
       },
       parameters: {
-          type: "object",
-          properties: {
-              key: { type: "string", description: "The name of the key to press, e.g., 'Enter', 'ArrowDown', 'b'." },
-          },
+        type: "object",
+        properties: {
+          key: { type: "string", description: "The name of the key to press, e.g., 'Enter', 'ArrowDown', 'b'." },
+        },
       },
     },
     locateElement: {
       function: async (args: { cssSelector: string }) => {
-        const locator = await page.locator(args.cssSelector);
-
+        const locator = page.locator(args.cssSelector);
         const elementId = randomUUID();
-
-        locatorMap.set(elementId, locator);
-
-        return {
-          elementId,
-        };
+        await locator.first().evaluate((node, id) => node.setAttribute('data-element-id', id), elementId);
+        return { elementId };
       },
       name: "locateElement",
-      description:
-        "Locates element using a CSS selector and returns elementId. This element ID can be used with other functions to perform actions on the element.",
+      description: "Locates element using a CSS selector and returns elementId. This element ID can be used with other functions to perform actions on the element.",
       parse: (args: string) => {
         return z
           .object({
@@ -576,11 +562,7 @@ export const createActions = (
         let locator;
 
         if (elementId) {
-          try {
-            locator = getLocator(elementId);
-          } catch (error) {
-            throw new Error(`Element ID "${elementId}" was not found in the locator registry. You must call locateElement first to get a valid elementId.`);
-          }
+          locator = page.locator(`[data-element-id="${elementId}"]`);
         } else if (cssSelector) {
           locator = page.locator(cssSelector);
         } else {
@@ -590,9 +572,15 @@ export const createActions = (
         if (value !== undefined) {
           await locator.selectOption(value);
         } else if (label !== undefined) {
-          await locator.selectOption({ label });
+          const options = Array.isArray(label)
+            ? label.map(l => ({ label: l }))
+            : { label };
+          await locator.selectOption(options);
         } else if (index !== undefined) {
-          await locator.selectOption({ index });
+          const options = Array.isArray(index)
+            ? index.map(i => ({ index: i }))
+            : { index };
+          await locator.selectOption(options);
         } else {
           throw new Error("You must provide at least one of the parameters: value, label, or index.");
         }
@@ -863,25 +851,27 @@ export const createActions = (
     locateElementsByRole: {
       function: async (args: {
         role: 'alert' | 'alertdialog' | 'application' | 'article' | 'banner' | 'blockquote' | 'button' |
-        'caption' | 'cell' | 'checkbox' | 'code' | 'columnheader' | 'combobox' | 'complementary' |
-        'contentinfo' | 'definition' | 'deletion' | 'dialog' | 'directory' | 'document' | 'emphasis' |
-        'feed' | 'figure' | 'form' | 'generic' | 'grid' | 'gridcell' | 'group' | 'heading' |
-        'img' | 'insertion' | 'link' | 'list' | 'listbox' | 'listitem' | 'log' | 'main' |
-        'marquee' | 'math' | 'menu' | 'menubar' | 'menuitem' | 'menuitemcheckbox' | 'menuitemradio' |
-        'meter' | 'navigation' | 'none' | 'note' | 'option' | 'paragraph' | 'presentation' |
-        'progressbar' | 'radio' | 'radiogroup' | 'region' | 'row' | 'rowgroup' | 'rowheader' |
-        'scrollbar' | 'search' | 'searchbox' | 'separator' | 'slider' | 'spinbutton' | 'status' |
-        'strong' | 'subscript' | 'superscript' | 'switch' | 'tab' | 'table' | 'tablist' |
-        'tabpanel' | 'term' | 'textbox' | 'time' | 'timer' | 'toolbar' | 'tooltip' |
-        'tree' | 'treegrid' | 'treeitem';
+          'caption' | 'cell' | 'checkbox' | 'code' | 'columnheader' | 'combobox' | 'complementary' |
+          'contentinfo' | 'definition' | 'deletion' | 'dialog' | 'directory' | 'document' | 'emphasis' |
+          'feed' | 'figure' | 'form' | 'generic' | 'grid' | 'gridcell' | 'group' | 'heading' |
+          'img' | 'insertion' | 'link' | 'list' | 'listbox' | 'listitem' | 'log' | 'main' |
+          'marquee' | 'math' | 'menu' | 'menubar' | 'menuitem' | 'menuitemcheckbox' | 'menuitemradio' |
+          'meter' | 'navigation' | 'none' | 'note' | 'option' | 'paragraph' | 'presentation' |
+          'progressbar' | 'radio' | 'radiogroup' | 'region' | 'row' | 'rowgroup' | 'rowheader' |
+          'scrollbar' | 'search' | 'searchbox' | 'separator' | 'slider' | 'spinbutton' | 'status' |
+          'strong' | 'subscript' | 'superscript' | 'switch' | 'tab' | 'table' | 'tablist' |
+          'tabpanel' | 'term' | 'textbox' | 'time' | 'timer' | 'toolbar' | 'tooltip' |
+          'tree' | 'treegrid' | 'treeitem';
         exact?: boolean
       }) => {
         const locators = await page.getByRole(args.role, { exact: args.exact ?? false }).all();
-        const elementIds = locators.map(() => randomUUID());
+        const elementIds: string[] = [];
 
-        locators.forEach((locator, index) => {
-          locatorMap.set(elementIds[index], locator);
-        });
+        for (const locator of locators) {
+          const elementId = randomUUID();
+          await locator.evaluate((node, id) => node.setAttribute('data-element-id', id), elementId);
+          elementIds.push(elementId);
+        }
 
         return {
           elementIds,
@@ -917,23 +907,19 @@ export const createActions = (
       function: async (args: { text: string; exact?: boolean }) => {
         const allLocators = await page.getByText(args.text, { exact: args.exact ?? false }).all();
 
-        const visibleLocators = [];
+        const elementIds: string[] = [];
+
         for (const locator of allLocators) {
-          const isVisible = await locator.isVisible();
-          if (isVisible) {
-            visibleLocators.push(locator);
+          if (await locator.isVisible()) {
+            const elementId = randomUUID();
+            await locator.evaluate((node, id) => node.setAttribute('data-element-id', id), elementId);
+            elementIds.push(elementId);
           }
         }
 
-        const elementIds = visibleLocators.map(() => randomUUID());
-
-        visibleLocators.forEach((locator, index) => {
-          locatorMap.set(elementIds[index], locator);
-        });
-
         return {
           elementIds,
-          count: elementIds.length
+          count: elementIds.length,
         };
       },
       name: "locateElementsWithText",
