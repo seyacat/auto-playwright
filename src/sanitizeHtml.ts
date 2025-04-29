@@ -1,4 +1,45 @@
-import * as sanitizeHtmlLibrary from "sanitize-html";
+import sanitizeHtmlLibrary = require("sanitize-html");
+
+export type SanitizeStylesType = { [index: string]: { [index: string]: RegExp[] } } | undefined;
+
+export type SanitizeClassListType = { [index: string]: boolean | Array<string | RegExp> } | undefined;
+
+export const DEFAULT_SANITIZE_TAGS = sanitizeHtmlLibrary.defaults.allowedTags.concat([
+  "body",
+  "button",
+  "form",
+  "img",
+  "input",
+  "select",
+  "textarea",
+  "option"
+]);
+
+export const DEFAULT_SANITIZE_STYLES: SanitizeStylesType = undefined;
+
+export const DEFAULT_SANITIZE_CLASS_LIST: SanitizeClassListType = undefined;
+
+let options: sanitizeHtmlLibrary.IOptions;
+
+export function setSanitizeOptions(newOptions: sanitizeHtmlLibrary.IOptions) {
+  options = newOptions;
+}
+
+export function getSanitizeOptions(): sanitizeHtmlLibrary.IOptions {
+  return {
+    // The default allowedTags list already includes _a lot_ of commonly used tags.
+    // https://www.npmjs.com/package/sanitize-html#default-options
+    //
+    // I don't see a need for this to be configurable at the moment,
+    // as it already covers all the layout tags, but we can revisit this if necessary.
+    allowedTags: DEFAULT_SANITIZE_TAGS,
+    // Setting allowedAttributes to false will allow all attributes.
+    allowedAttributes: false,
+    allowedClasses: DEFAULT_SANITIZE_CLASS_LIST,
+    allowedStyles: DEFAULT_SANITIZE_STYLES,
+    ...(options ? options : {})
+  };
+}
 
 /**
  * The reason for sanitization is because OpenAI does not need all of the HTML tags
@@ -12,22 +53,5 @@ import * as sanitizeHtmlLibrary from "sanitize-html";
  * combine HTML with screenshots in the future versions of this library.
  */
 export const sanitizeHtml = (subject: string) => {
-  return sanitizeHtmlLibrary(subject, {
-    // The default allowedTags list already includes _a lot_ of commonly used tags.
-    // https://www.npmjs.com/package/sanitize-html#default-options
-    //
-    // I don't see a need for this to be configurable at the moment,
-    // as it already covers all the layout tags, but we can revisit this if necessary.
-    allowedTags: sanitizeHtmlLibrary.defaults.allowedTags.concat([
-      "button",
-      "form",
-      "img",
-      "input",
-      "select",
-      "textarea",
-      "option"
-    ]),
-    // Setting allowedAttributes to false will allow all attributes.
-    allowedAttributes: false,
-  });
+  return sanitizeHtmlLibrary(subject, getSanitizeOptions());
 };

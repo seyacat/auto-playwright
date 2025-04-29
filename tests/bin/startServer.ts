@@ -1,9 +1,27 @@
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
+import { resolve } from "path";
+import { readFile } from 'node:fs/promises';
 
 export const startServer = (port: number) => {
   const app = new Hono();
 
+  const PAGES_DIR = resolve(process.cwd(), "tests/pages");
+
+  // Ручная раздача HTML из tests/pages
+  app.get("/tests/pages/:file", async (c) => {
+    const fileName = c.req.param("file");
+    const fullPath = resolve(PAGES_DIR, fileName);
+    try {
+      const html = await readFile(fullPath, "utf-8");
+      return c.html(html);
+    } catch (err) {
+      console.error("File not found:", fullPath);
+      return c.text("404 Not Found", 404);
+    }
+  });
+
+  // Главная страница (как раньше)
   app.get("/", (c) =>
     c.html(`<html>
   <body>

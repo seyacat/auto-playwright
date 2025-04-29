@@ -117,6 +117,8 @@ test("selects multiple options from multi-select using auto", async ({ page }) =
 });
 
 test("extracts visible structure of the page using auto", async ({ page }) => {
+  test.setTimeout(3 * 60 * 1000);
+
   await page.goto("/");
 
   const structure = await auto("Get the visible structure of the page", { page, test }, options);

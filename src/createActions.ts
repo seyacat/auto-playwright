@@ -2,6 +2,7 @@ import { Page } from "@playwright/test";
 import { randomUUID } from "crypto";
 import { RunnableFunctionWithParse } from "openai/lib/RunnableFunction";
 import { z } from "zod";
+import { getSanitizeOptions } from './sanitizeHtml';
 
 export const createActions = (
   page: Page
@@ -782,20 +783,15 @@ export const createActions = (
     },
     getVisibleStructure: {
       function: async () => {
-        return {
-          structure: await page.evaluate(() => {
-            interface DOMNode {
-              tag: string;
-              id?: string;
-              role?: string;
-              ariaLabel?: string;
-              className?: string;
-              attributes: Record<string, string>;
-              children: DOMNode[];
-              text?: string;
-            }
+        const sanitizeOptions = getSanitizeOptions();
+        const allowedTags = sanitizeOptions.allowedTags || [];
+        const allowedAttributes = sanitizeOptions.allowedAttributes;
+        const maxDepth = 30; // Можно вынести наверх файла в константу при желании
 
-            const extractVisibleStructure = (element: Element, depth = 0, maxDepth = 3): DOMNode | null => {
+        return {
+          structure: await page.evaluate(({ allowedTags, allowedAttributes, maxDepth }) => {
+            // @ts-ignore
+            const extractVisibleStructure = (element, depth = 0) => {
               if (!element || depth > maxDepth) return null;
 
               const style = window.getComputedStyle(element);
@@ -803,39 +799,96 @@ export const createActions = (
                 return null;
               }
 
-              const node: DOMNode = {
-                tag: element.tagName.toLowerCase(),
-                id: element.id || undefined,
-                role: element.getAttribute('role') || undefined,
-                ariaLabel: element.getAttribute('aria-label') || undefined,
-                className: element.className ?
-                  element.className.split(' ').filter((c: string) => c.length > 0).join(' ') : undefined,
+              const tag = element.tagName.toLowerCase();
+              if (!allowedTags.includes(tag)) {
+                return null;
+              }
+
+              const node = {
+                tag: tag,
                 attributes: {},
                 children: []
               };
 
-              ['data-pagelet', 'data-testid', 'href', 'type', 'name'].forEach(attr => {
-                const value = element.getAttribute(attr);
-                if (value) node.attributes[attr] = value;
-              });
+              const elementAttributes = element.attributes;
+              if (allowedAttributes === false) {
+                for (let i = 0; i < elementAttributes.length; i++) {
+                  const attr = elementAttributes[i];
+                  // @ts-ignore
+                  node.attributes[attr.name] = attr.value;
+                }
+              } else if (typeof allowedAttributes === 'object') {
+                const allowedForAll = allowedAttributes['*'];
+                const allowedForTag = allowedAttributes[tag];
+
+                // @ts-ignore
+                const allowAllForTag = allowedForTag === true;
+                // @ts-ignore
+                const allowAllGlobal = allowedForAll === true;
+
+                for (let i = 0; i < elementAttributes.length; i++) {
+                  const attr = elementAttributes[i];
+                  const attrName = attr.name;
+
+                  if (
+                    (allowAllForTag) ||
+                    (allowAllGlobal) ||
+                    (Array.isArray(allowedForTag) && allowedForTag.includes(attrName)) ||
+                    (Array.isArray(allowedForAll) && allowedForAll.includes(attrName))
+                  ) {
+                    // @ts-ignore
+                    node.attributes[attrName] = attr.value;
+                  }
+                }
+              }
+
+              const id = element.id;
+              if (id) {
+                // @ts-ignore
+                node.id = id;
+              }
+
+              const role = element.getAttribute('role');
+              if (role) {
+                // @ts-ignore
+                node.role = role;
+              }
+
+              const ariaLabel = element.getAttribute('aria-label');
+              if (ariaLabel) {
+                // @ts-ignore
+                node.ariaLabel = ariaLabel;
+              }
+
+              const className = element.className?.trim();
+              if (className) {
+                // @ts-ignore
+                node.className = className;
+              }
 
               if (element.childNodes.length === 1 && element.childNodes[0].nodeType === 3) {
                 const text = element.textContent?.trim() || '';
-                if (text) node.text = text.length > 50 ? text.substring(0, 50) + '...' : text;
+                if (text) {
+                  // @ts-ignore
+                  node.text = text.length > 50 ? text.slice(0, 50) + '...' : text;
+                }
               }
 
-              if (depth < maxDepth) {
-                Array.from(element.children).forEach(child => {
-                  const childStructure = extractVisibleStructure(child, depth + 1, maxDepth);
-                  if (childStructure) node.children.push(childStructure);
-                });
+              if (depth + 1 < maxDepth) {
+                for (let i = 0; i < element.children.length; i++) {
+                  const child = extractVisibleStructure(element.children[i], depth + 1);
+                  if (child) {
+                    // @ts-ignore
+                    node.children.push(child);
+                  }
+                }
               }
 
               return node;
             };
 
             return extractVisibleStructure(document.body);
-          })
+          }, { allowedTags, allowedAttributes, maxDepth })
         };
       },
       name: "getVisibleStructure",
