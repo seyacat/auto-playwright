@@ -1,19 +1,24 @@
 import sanitizeHtmlLibrary = require("sanitize-html");
 
-export type SanitizeStylesType = { [index: string]: { [index: string]: RegExp[] } } | undefined;
+export type SanitizeStylesType =
+  | { [index: string]: { [index: string]: RegExp[] } }
+  | undefined;
 
-export type SanitizeClassListType = { [index: string]: boolean | Array<string | RegExp> } | undefined;
+export type SanitizeClassListType =
+  | { [index: string]: boolean | Array<string | RegExp> }
+  | undefined;
 
-export const DEFAULT_SANITIZE_TAGS = sanitizeHtmlLibrary.defaults.allowedTags.concat([
-  "body",
-  "button",
-  "form",
-  "img",
-  "input",
-  "select",
-  "textarea",
-  "option"
-]);
+export const DEFAULT_SANITIZE_TAGS =
+  sanitizeHtmlLibrary.defaults.allowedTags.concat([
+    "body",
+    "button",
+    "form",
+    "img",
+    "input",
+    "select",
+    "textarea",
+    "option",
+  ]);
 
 export const DEFAULT_SANITIZE_STYLES: SanitizeStylesType = undefined;
 
@@ -37,7 +42,7 @@ export function getSanitizeOptions(): sanitizeHtmlLibrary.IOptions {
     allowedAttributes: false,
     allowedClasses: DEFAULT_SANITIZE_CLASS_LIST,
     allowedStyles: DEFAULT_SANITIZE_STYLES,
-    ...(options ? options : {})
+    ...(options ? options : {}),
   };
 }
 

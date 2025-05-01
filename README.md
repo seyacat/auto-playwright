@@ -35,11 +35,15 @@ test("auto Playwright example", async ({ page }) => {
 
   // `auto` can assert the state of the website
   // In this case, the result is a boolean outcome
-  const searchInputHasHeaderText = await auto(`Is the contents of the search box equal to "${headerText}"?`, { page, test });
+  const searchInputHasHeaderText = await auto(
+    `Is the contents of the search box equal to "${headerText}"?`,
+    { page, test },
+  );
 
   expect(searchInputHasHeaderText).toBe(true);
 });
 ```
+
 ### Setup with Azure OpenAI
 
 Include the StepOptions type with the values needed for connecting to Azure OpenAI.
@@ -54,11 +58,11 @@ const resource = "azure-resource-name";
 const model = "model-deployment-name";
 
 const options: StepOptions = {
-   model: model,
-   openaiApiKey: apiKey,
-   openaiBaseUrl: `https://${resource}.openai.azure.com/openai/deployments/${model}`,
-   openaiDefaultQuery: { 'api-version': "2023-07-01-preview" },
-   openaiDefaultHeaders: { 'api-key': apiKey }
+  model: model,
+  openaiApiKey: apiKey,
+  openaiBaseUrl: `https://${resource}.openai.azure.com/openai/deployments/${model}`,
+  openaiDefaultQuery: { "api-version": "2023-07-01-preview" },
+  openaiDefaultHeaders: { "api-key": apiKey },
 };
 
 test("auto Playwright example", async ({ page }) => {
@@ -74,7 +78,11 @@ test("auto Playwright example", async ({ page }) => {
 
   // `auto` can assert the state of the website
   // In this case, the result is a boolean outcome
-  const searchInputHasHeaderText = await auto(`Is the contents of the search box equal to "${headerText}"?`, { page, test }, options);
+  const searchInputHasHeaderText = await auto(
+    `Is the contents of the search box equal to "${headerText}"?`,
+    { page, test },
+    options,
+  );
 
   expect(searchInputHasHeaderText).toBe(true);
 });
@@ -142,7 +150,7 @@ const options = {
   // The OpenAI model (https://platform.openai.com/docs/models/overview)
   model: "gpt-4-1106-preview",
   // The OpenAI API key
-  openaiApiKey: 'sk-...',
+  openaiApiKey: "sk-...",
 };
 
 auto("<your prompt>", { page, test }, options);
@@ -340,23 +348,24 @@ This project draws its inspiration from [ZeroStep](https://zerostep.com/). ZeroS
 
 Here's a side-by-side comparison of Auto Playwright and ZeroStep:
 
-|Criteria|Auto Playwright|ZeroStep|
-|---|---|---|
-|Uses OpenAI API|Yes|No[^3]|
-|Uses plain-text prompts|Yes|No|
-|Uses [`functions`](https://www.npmjs.com/package/openai#automated-function-calls) SDK|Yes|No|
-|Uses HTML sanitization|Yes|No|
-|Uses Playwright API|Yes|No[^4]|
-|Uses screenshots|No|Yes|
-|Uses queue|No|Yes|
-|Uses WebSockets|No|Yes|
-|Snapshots|HTML|DOM|
-|Implements parallelism|No|Yes|
-|Allows scrolling|No|Yes|
-|Provides fixtures|No|Yes|
-|License|MIT|MIT|
+| Criteria                                                                              | Auto Playwright | ZeroStep |
+| ------------------------------------------------------------------------------------- | --------------- | -------- |
+| Uses OpenAI API                                                                       | Yes             | No[^3]   |
+| Uses plain-text prompts                                                               | Yes             | No       |
+| Uses [`functions`](https://www.npmjs.com/package/openai#automated-function-calls) SDK | Yes             | No       |
+| Uses HTML sanitization                                                                | Yes             | No       |
+| Uses Playwright API                                                                   | Yes             | No[^4]   |
+| Uses screenshots                                                                      | No              | Yes      |
+| Uses queue                                                                            | No              | Yes      |
+| Uses WebSockets                                                                       | No              | Yes      |
+| Snapshots                                                                             | HTML            | DOM      |
+| Implements parallelism                                                                | No              | Yes      |
+| Allows scrolling                                                                      | No              | Yes      |
+| Provides fixtures                                                                     | No              | Yes      |
+| License                                                                               | MIT             | MIT      |
 
 [^3]: Uses ZeroStep proprietary API.
+
 [^4]: Uses _some_ Playwright API, but predominantly relies on Chrome DevTools Protocol (CDP).
 
 <details>
@@ -373,4 +382,5 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ```
+
 </details>

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { resolve } from "path";
-import { readFile } from 'node:fs/promises';
+import { readFile } from "node:fs/promises";
 
 export const startServer = (port: number) => {
   const app = new Hono();
@@ -97,7 +97,7 @@ export const startServer = (port: number) => {
       You have reached the bottom of the page!
     </div>
   </body>
-</html>`)
+</html>`),
   );
 
   return new Promise((resolve) => {
@@ -113,7 +113,7 @@ export const startServer = (port: number) => {
           },
           port: info.port,
         });
-      }
+      },
     );
   });
 };

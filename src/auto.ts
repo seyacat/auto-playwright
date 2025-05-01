@@ -7,11 +7,11 @@ import { getSnapshot } from "./getSnapshot";
 export const auto = async (
   task: string,
   config: { page: Page; test?: Test },
-  options?: StepOptions
+  options?: StepOptions,
 ): Promise<any> => {
   if (!config || !config.page) {
     throw Error(
-      "The auto() function is missing the required `{ page }` argument."
+      "The auto() function is missing the required `{ page }` argument.",
     );
   }
 
@@ -43,11 +43,11 @@ export const auto = async (
 async function runTask(
   task: string,
   page: Page,
-  options: StepOptions | undefined
+  options: StepOptions | undefined,
 ) {
   if (task.length > MAX_TASK_CHARS) {
     throw new Error(
-      `Provided task string is too long, max length is ${MAX_TASK_CHARS} chars.`
+      `Provided task string is too long, max length is ${MAX_TASK_CHARS} chars.`,
     );
   }
 
@@ -56,13 +56,13 @@ async function runTask(
     snapshot: await getSnapshot(page),
     options: options
       ? {
-        model: options.model ?? "gpt-4o",
-        debug: options.debug ?? false,
-        openaiApiKey: options.openaiApiKey,
-        openaiBaseUrl: options.openaiBaseUrl,
-        openaiDefaultQuery: options.openaiDefaultQuery,
-        openaiDefaultHeaders: options.openaiDefaultHeaders,
-      }
+          model: options.model ?? "gpt-4o",
+          debug: options.debug ?? false,
+          openaiApiKey: options.openaiApiKey,
+          openaiBaseUrl: options.openaiBaseUrl,
+          openaiDefaultQuery: options.openaiDefaultQuery,
+          openaiDefaultHeaders: options.openaiDefaultHeaders,
+        }
       : undefined,
   });
   return result;

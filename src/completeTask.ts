@@ -7,7 +7,7 @@ const defaultDebug = process.env.AUTO_PLAYWRIGHT_DEBUG === "true";
 
 export const completeTask = async (
   page: Page,
-  task: TaskMessage
+  task: TaskMessage,
 ): Promise<TaskResult> => {
   const openai = new OpenAI({
     apiKey: task.options?.openaiApiKey,
@@ -29,9 +29,9 @@ export const completeTask = async (
       messages: [
         {
           role: "system",
-          content: SYSTEM_PROMPT
+          content: SYSTEM_PROMPT,
         },
-        { role: "user", content: prompt(task) }
+        { role: "user", content: prompt(task) },
       ],
       tools: Object.values(actions).map((action) => ({
         type: "function",
@@ -50,7 +50,7 @@ export const completeTask = async (
         message.tool_calls[0].function.name.startsWith("result")
       ) {
         lastFunctionResult = JSON.parse(
-          message.tool_calls[0].function.arguments
+          message.tool_calls[0].function.arguments,
         );
       }
     });

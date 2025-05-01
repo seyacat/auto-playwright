@@ -5,43 +5,45 @@ import { getSanitizeOptions } from "../src/sanitizeHtml";
 
 const runner = {} as ChatCompletionRunner;
 
-test("finds element using a CSS locator and returns elementId",
-  async ({ page }) => {
-    await page.goto("/");
-
-    const actions = createActions(page);
-
-    const result = await actions.locateElement.function(
-      {
-        cssSelector: "h1",
-      },
-      runner
-    );
-
-    expect(result).toStrictEqual({
-      elementId: expect.any(String),
-    });
-  }
-);
-
-test("selects option by value in a select element using elementId", async ({ page }) => {
+test("finds element using a CSS locator and returns elementId", async ({
+  page,
+}) => {
   await page.goto("/");
 
   const actions = createActions(page);
 
-  const locateResult = await actions.locateElement.function(
+  const result = await actions.locateElement.function(
+    {
+      cssSelector: "h1",
+    },
+    runner,
+  );
+
+  expect(result).toStrictEqual({
+    elementId: expect.any(String),
+  });
+});
+
+test("selects option by value in a select element using elementId", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const actions = createActions(page);
+
+  const locateResult = (await actions.locateElement.function(
     {
       cssSelector: "#fruit-select",
     },
-    runner
-  ) as { elementId: string };
+    runner,
+  )) as { elementId: string };
 
   const selectResult = await actions.locator_selectOption.function(
     {
       elementId: locateResult.elementId,
       value: "banana",
     },
-    runner
+    runner,
   );
 
   expect(selectResult).toStrictEqual({
@@ -51,7 +53,9 @@ test("selects option by value in a select element using elementId", async ({ pag
   await expect(page.locator("#selected-fruit")).toHaveText("Banana");
 });
 
-test("selects option by value in a select element using CSS selector", async ({ page }) => {
+test("selects option by value in a select element using CSS selector", async ({
+  page,
+}) => {
   await page.goto("/");
 
   const actions = createActions(page);
@@ -61,7 +65,7 @@ test("selects option by value in a select element using CSS selector", async ({ 
       cssSelector: "#fruit-select",
       value: "cherry",
     },
-    runner
+    runner,
   );
 
   expect(selectResult).toStrictEqual({
@@ -71,7 +75,9 @@ test("selects option by value in a select element using CSS selector", async ({ 
   await expect(page.locator("#selected-fruit")).toHaveText("Cherry");
 });
 
-test("selects option by label in a select element using CSS selector", async ({ page }) => {
+test("selects option by label in a select element using CSS selector", async ({
+  page,
+}) => {
   await page.goto("/");
 
   const actions = createActions(page);
@@ -81,7 +87,7 @@ test("selects option by label in a select element using CSS selector", async ({ 
       cssSelector: "#fruit-select",
       label: "Orange",
     },
-    runner
+    runner,
   );
 
   expect(selectResult).toStrictEqual({
@@ -91,7 +97,9 @@ test("selects option by label in a select element using CSS selector", async ({ 
   await expect(page.locator("#selected-fruit")).toHaveText("Orange");
 });
 
-test("selects option by index in a select element using CSS selector", async ({ page }) => {
+test("selects option by index in a select element using CSS selector", async ({
+  page,
+}) => {
   await page.goto("/");
 
   const actions = createActions(page);
@@ -101,7 +109,7 @@ test("selects option by index in a select element using CSS selector", async ({ 
       cssSelector: "#fruit-select",
       index: 1,
     },
-    runner
+    runner,
   );
 
   expect(selectResult).toStrictEqual({
@@ -111,7 +119,9 @@ test("selects option by index in a select element using CSS selector", async ({ 
   await expect(page.locator("#selected-fruit")).toHaveText("Apple");
 });
 
-test("selects multiple options in a multiple select element using CSS selector", async ({ page }) => {
+test("selects multiple options in a multiple select element using CSS selector", async ({
+  page,
+}) => {
   await page.goto("/");
 
   const actions = createActions(page);
@@ -121,7 +131,7 @@ test("selects multiple options in a multiple select element using CSS selector",
       cssSelector: "#colors-select",
       value: ["red", "blue"],
     },
-    runner
+    runner,
   );
 
   expect(selectResult).toStrictEqual({
@@ -131,7 +141,11 @@ test("selects multiple options in a multiple select element using CSS selector",
   await expect(page.locator("#selected-colors")).toHaveText("Red, Blue");
 });
 
-function createValidationFunction(allowedTags: string[], allowedAttributes: any, maxDepth = 3) {
+function createValidationFunction(
+  allowedTags: string[],
+  allowedAttributes: any,
+  maxDepth = 3,
+) {
   return function validateNode(node: any, depth = 0) {
     expect(node.tag).toBeDefined();
     expect(allowedTags).toContain(node.tag);
@@ -150,7 +164,9 @@ function createValidationFunction(allowedTags: string[], allowedAttributes: any,
           } else if (Array.isArray(allowedForAll)) {
             expect(allowedForAll).toContain(attrName);
           } else {
-            throw new Error(`Attribute ${attrName} is not allowed for tag ${node.tag}`);
+            throw new Error(
+              `Attribute ${attrName} is not allowed for tag ${node.tag}`,
+            );
           }
         }
       }
@@ -173,7 +189,10 @@ test("getVisibleStructure on default page", async ({ page }) => {
 
   const actions = createActions(page);
 
-  const { structure } = (await actions.getVisibleStructure.function({}, runner)) as { structure: any };
+  const { structure } = (await actions.getVisibleStructure.function(
+    {},
+    runner,
+  )) as { structure: any };
 
   expect(typeof structure).toBe("object");
   expect(structure).not.toBeNull();
@@ -181,7 +200,7 @@ test("getVisibleStructure on default page", async ({ page }) => {
   const sanitizeOptions = getSanitizeOptions();
   const validateNode = createValidationFunction(
     sanitizeOptions.allowedTags || [],
-    sanitizeOptions.allowedAttributes
+    sanitizeOptions.allowedAttributes,
   );
 
   validateNode(structure);
@@ -192,7 +211,10 @@ test("getVisibleStructure on all attributes page", async ({ page }) => {
 
   const actions = createActions(page);
 
-  const { structure } = (await actions.getVisibleStructure.function({}, runner)) as { structure: any };
+  const { structure } = (await actions.getVisibleStructure.function(
+    {},
+    runner,
+  )) as { structure: any };
 
   expect(typeof structure).toBe("object");
   expect(structure).not.toBeNull();
@@ -200,7 +222,7 @@ test("getVisibleStructure on all attributes page", async ({ page }) => {
   const sanitizeOptions = getSanitizeOptions();
   const validateNode = createValidationFunction(
     sanitizeOptions.allowedTags || [],
-    sanitizeOptions.allowedAttributes
+    sanitizeOptions.allowedAttributes,
   );
 
   validateNode(structure);
@@ -211,7 +233,10 @@ test("getVisibleStructure respects max depth", async ({ page }) => {
 
   const actions = createActions(page);
 
-  const { structure } = (await actions.getVisibleStructure.function({}, runner)) as { structure: any };
+  const { structure } = (await actions.getVisibleStructure.function(
+    {},
+    runner,
+  )) as { structure: any };
 
   expect(typeof structure).toBe("object");
   expect(structure).not.toBeNull();
@@ -220,7 +245,7 @@ test("getVisibleStructure respects max depth", async ({ page }) => {
   const validateNode = createValidationFunction(
     sanitizeOptions.allowedTags || [],
     sanitizeOptions.allowedAttributes,
-    5
+    5,
   );
 
   validateNode(structure);
