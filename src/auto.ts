@@ -17,7 +17,7 @@ export const auto = async (
 ): Promise<{allProcess: any[], lastResults: any}> => {
   if (!config || !config.page) {
     throw Error(
-      "The auto() function is missing the required `{ page }` argument."
+      "The auto() function is missing the required `{ page }` argument.",
     );
   }
 
@@ -103,7 +103,7 @@ async function runTask(
 ): Promise<OpenAI.Chat.Completions.ChatCompletionMessageParam[]> {
   if (task.length > MAX_TASK_CHARS) {
     throw new Error(
-      `Provided task string is too long, max length is ${MAX_TASK_CHARS} chars.`
+      `Provided task string is too long, max length is ${MAX_TASK_CHARS} chars.`,
     );
   }
 

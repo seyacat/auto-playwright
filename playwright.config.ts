@@ -10,6 +10,8 @@ export default defineConfig({
     stderr: "pipe",
   },
   use: {
+    headless: true,
     baseURL: "http://127.0.0.1:3000",
+    ignoreHTTPSErrors: true,
   },
 });
