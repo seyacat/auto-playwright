@@ -1,1 +1,1 @@
-export const MAX_TASK_CHARS = 2000;
+export const MAX_TASK_CHARS = 3000;
