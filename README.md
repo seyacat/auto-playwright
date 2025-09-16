@@ -1,9 +1,22 @@
 # Auto Playwright
 
 Run Playwright tests using AI.
+Deepseek support
 This Fork includes file cached system
 
 ## Cache example usagge
+
+```js
+const options: StepOptions = {
+    model: 'deepseek-chat',
+    deepseekApiKey: process.env.DEEPSEEK_API_KEY,
+    provider: 'deepseek',
+    cache_path: 'cache',
+    debug: true
+  };
+
+const res = await auto(`Fill login form, username: @{USERNAME}, password: @{PASSWORD}, Click on "Remember Me", and Sign In`, { page },options, {USERNAME , PASSWORD}, "fill_login");
+```
 
 ```js
 
