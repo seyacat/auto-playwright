@@ -120,6 +120,10 @@ async function runTask(
             openaiBaseUrl: options.openaiBaseUrl,
             openaiDefaultQuery: options.openaiDefaultQuery,
             openaiDefaultHeaders: options.openaiDefaultHeaders,
+            // DeepSeek specific options
+            deepseekApiKey: options.deepseekApiKey,
+            deepseekBaseUrl: options.deepseekBaseUrl,
+            provider: options.provider,
           }
         : undefined,
     },

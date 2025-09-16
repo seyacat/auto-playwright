@@ -12,6 +12,10 @@ export type StepOptions = {
   openaiDefaultQuery?: {};
   openaiDefaultHeaders?: {};
   cache_path?: string;
+  // DeepSeek specific options
+  deepseekApiKey?: string;
+  deepseekBaseUrl?: string;
+  provider?: 'openai' | 'deepseek';
 };
 
 export type TaskMessage = {
